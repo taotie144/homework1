@@ -110,7 +110,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 	int mx = 0, my = 0;
 	uchar *pg(NULL), *ps(NULL);
 	long long temp = 0;
-	long long ans = 0xffffffffffffffff;
+	long long ans = 0xfffffffffffffff;
 	int row = grayImg.rows, col = grayImg.cols;
 	int rrr = subImg.rows, ccc = subImg.cols;
 	row -= rrr;
@@ -148,7 +148,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 	int mx = 0, my = 0;
 	Vec3b *pc(NULL),*ps(NULL);
 	long long temp = 0;
-	long long ans = 0xffffffffffffffff;
+	long long ans = 0xfffffffffffffff;
 	int row = colorImg.rows, col = colorImg.cols;
 	int rrr = subImg.rows, ccc = subImg.cols;
 	row -= rrr;
@@ -192,7 +192,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 	int row = grayImg.rows, col = grayImg.cols;
 	int rrr = subImg.rows, ccc = subImg.cols;
 	float gg=0, ss=0;
-	float temp, ans=128.0;
+	float temp, ans=127.0;
 	Mat gsquare(row, col, CV_32FC1, 1);
 	Mat ssquare(rrr, ccc, CV_32FC1, 1);
 	float *pp(NULL), *pg(NULL), *ps(NULL);
