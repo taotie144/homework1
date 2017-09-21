@@ -1,4 +1,4 @@
-
+#include "SubImageMatch.h"
 #include "stdafx.h"
 #include "opencv2/opencv.hpp"
 using namespace cv;
@@ -954,38 +954,4 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 
 }
 
-void test_match_diagram()
-{
-	Mat grayImg = imread("pic.jpg", 0);
-	if (NULL == grayImg.data)
-	{
-		cout << "image read failed." << endl;
-		return;
-	}
-	Mat subImg = grayImg(Rect(60, 20, 258, 128)).clone();
-	int hist[256];
-	for (int i = 0; i < 256; ++i)
-	{
-		hist[i] = 0;
-	}
-	int x = 0;
-	int y = 0;
-	int flag = ustc_Cal(subImg, hist);
-	ustc_SubImgMatch_hist(grayImg, subImg, &x, &y);
-}
 
-int main()
-{
-	test_bgr2gray();
-	test_grad();
-	test_angle();
-	test_threshold();
-	test_hist();
-	test_match_gray();
-	test_match_gray3();
-	test_match_related();
-	test_match_angle();
-	test_match_range();
-	test_match_diagram();
-	return 0;
-}
