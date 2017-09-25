@@ -194,7 +194,8 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat &grayImg) {
         return SUB_IMAGE_MATCH_FAIL;
     }
     
-    int sizeOfPixel = bgrImg.cols * bgrImg.rows;        //像素数
+    grayImg.create(bgrImg.rows,bgrImg.cols,CV_8UC1);
+    int sizeOfPixel = bgrImg.cols * bgrImg.rows;
     uchar *gray = (uchar *) grayImg.data;
     uchar *bgr = bgrImg.data;
     
@@ -251,19 +252,18 @@ int ustc_CalcGrad(Mat grayImg, Mat &gradImg_x, Mat &gradImg_y) {
         return SUB_IMAGE_MATCH_FAIL;
     }
     
+    int rows = grayImg.rows;
+    int cols = grayImg.cols;
+    
+    gradImg_x.create(rows,cols,CV_32FC1);
+    gradImg_y.create(rows,cols,CV_32FC1);
     uchar *P = grayImg.data;
     float *PX = (float *) gradImg_x.data;
     float *PY = (float *) gradImg_y.data;
     
-    int rows = grayImg.rows;
-    int cols = grayImg.cols;
-    
-    //    gradImg_x.setTo(0);
-    //    gradImg_y.setTo(0);
     for (int i = 1; i < rows - 1; i++) {
         int j = 1;
         for (; j < cols - 1 - 4; j += 4) {
-            //通过指针遍历图像上每一个像素
             
             PX[i * cols + j] = P[(i - 1) * cols + j + 1] + (P[i * cols + j + 1] << 1) + P[(i + 1) * cols + j + 1] -
             P[(i - 1) * cols + j - 1] - (P[i * cols + j - 1] << 1) - P[(i + 1) * cols + j - 1];
@@ -305,7 +305,10 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat &angleImg, Mat &magImg) 
         return SUB_IMAGE_MATCH_FAIL;
     }
     
-    int sizeOfPixel = gradImg_x.cols * gradImg_x.rows;        //像素数
+    angleImg.create(gradImg_x.rows, gradImg_x.cols, CV_32FC1);
+    magImg.create(gradImg_x.rows, gradImg_x.cols, CV_32FC1);
+    
+    int sizeOfPixel = gradImg_x.cols * gradImg_x.rows;
     
     float *PX = (float *) gradImg_x.data;
     float *PY = (float *) gradImg_y.data;
@@ -349,8 +352,10 @@ int ustc_Threshold(Mat grayImg, Mat &binaryImg, int th) {
         return SUB_IMAGE_MATCH_OK;
     }
     
+    binaryImg.create(grayImg.rows, grayImg.cols, CV_8UC1);
+    
     int sizeOfPixel = grayImg.cols * grayImg.rows;
-    int qsizeOfPixel = sizeOfPixel >> 2;        //像素数/4
+    int qsizeOfPixel = sizeOfPixel >> 2;        
     int fqsizeOfPixel = qsizeOfPixel << 2;
     
     uint32_t *pg = (uint32_t *) grayImg.data;
@@ -381,8 +386,6 @@ int ustc_CalcHist(Mat grayImg, int *hist, int hist_len) {
     }
     
     int sizeOfPixel = grayImg.cols * grayImg.rows;
-    //    int qsizeOfPixel = sizeOfPixel >> 2;        //像素数/4
-    //    int fqsizeOfPixel = qsizeOfPixel << 2;
     
     uchar *pg = grayImg.data;
     
@@ -392,7 +395,7 @@ int ustc_CalcHist(Mat grayImg, int *hist, int hist_len) {
     int *hist3 = new int[hist_len]();
     int *hist4 = new int[hist_len]();
     
-    //    for (int i = 0; i < hist_len; i++) hist[i] = 0;
+    
     int i = 0;
     
     //Parallel
@@ -618,16 +621,16 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int *x, int *y) {
     if (NULL == grayImg.data || NULL == subImg.data || grayImg.rows < subImg.rows || grayImg.cols < subImg.cols) {
         return SUB_IMAGE_MATCH_FAIL;
     }
-    Mat imageX = Mat::zeros(grayImg.size(), CV_32FC1);
-    Mat imageY = Mat::zeros(grayImg.size(), CV_32FC1);
-    Mat imageAng = Mat::zeros(grayImg.size(), CV_32FC1);
-    Mat imageMag = Mat::zeros(grayImg.size(), CV_32FC1);
+    Mat imageX;
+    Mat imageY;
+    Mat imageAng;
+    Mat imageMag;
     ustc_CalcGrad(grayImg, imageX, imageY);
     ustc_CalcAngleMag(imageX, imageY, imageAng, imageMag);
-    Mat simageX = Mat::zeros(subImg.size(), CV_32FC1);
-    Mat simageY = Mat::zeros(subImg.size(), CV_32FC1);
-    Mat simageAng = Mat::zeros(subImg.size(), CV_32FC1);
-    Mat simageMag = Mat::zeros(subImg.size(), CV_32FC1);
+    Mat simageX;
+    Mat simageY;
+    Mat simageAng;
+    Mat simageMag;
     ustc_CalcGrad(subImg, simageX, simageY);
     ustc_CalcAngleMag(simageX, simageY, simageAng, simageMag);
     
@@ -722,7 +725,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int *x, int *y) {
             }
         }
     }
-   
+    
     return SUB_IMAGE_MATCH_OK;
 }
 
@@ -730,16 +733,10 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int *x, int *y) {
     if (NULL == grayImg.data || NULL == subImg.data || grayImg.rows < subImg.rows || grayImg.cols < subImg.cols) {
         return SUB_IMAGE_MATCH_FAIL;
     }
-    Mat imageX = Mat::zeros(grayImg.size(), CV_32FC1);
-    Mat imageY = Mat::zeros(grayImg.size(), CV_32FC1);
-    Mat imageAng = Mat::zeros(grayImg.size(), CV_32FC1);
-    Mat imageMag = Mat::zeros(grayImg.size(), CV_32FC1);
+    Mat imageX,imageY,imageAng,imageMag;
     ustc_CalcGrad(grayImg, imageX, imageY);
     ustc_CalcAngleMag(imageX, imageY, imageAng, imageMag);
-    Mat simageX = Mat::zeros(subImg.size(), CV_32FC1);
-    Mat simageY = Mat::zeros(subImg.size(), CV_32FC1);
-    Mat simageAng = Mat::zeros(subImg.size(), CV_32FC1);
-    Mat simageMag = Mat::zeros(subImg.size(), CV_32FC1);
+    Mat simageX,simageY,simageAng,simageMag;
     ustc_CalcGrad(subImg, simageX, simageY);
     ustc_CalcAngleMag(simageX, simageY, simageAng, simageMag);
     
@@ -784,7 +781,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int *x, int *y) {
             }
         }
     }
-
+    
     return SUB_IMAGE_MATCH_OK;
 }
 
@@ -859,3 +856,4 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int *x, int *y) {
     }
     return SUB_IMAGE_MATCH_OK;
 }
+
