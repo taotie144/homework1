@@ -1,12 +1,5 @@
-
 #include "SubImageMatch.h"
-/*#include "opencv2/opencv.hpp"
-using namespace cv;
-#include <iostream>
-#include <vector>
-using namespace std;
-#include <time.h>
-#define IMG_SHOW*/
+
 
 #define SUB_IMAGE_MATCH_OK 1
 #define SUB_IMAGE_MATCH_FAIL 0
@@ -460,13 +453,15 @@ float FastInvSqrt(float x)
 	return y * (1.47f - 0.47f * x * y * y);
 }
 
-int ustc_SubImgMatch_corr(Mat grayImg,Mat subImg, int *x, int *y)
+
+int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
 		cout << "image is NULL." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
+	
 	if (grayImg.channels() != 1 || subImg.channels() != 1)
 	{
 		cout << "image channel  wrong." << endl;
@@ -518,7 +513,6 @@ int ustc_SubImgMatch_corr(Mat grayImg,Mat subImg, int *x, int *y)
 	float fenmu2 = FastInvSqrt(need*yy - y*y);
 	float fenmu = fenmu1*fenmu2;
 	float total_corr = fenzi / fenmu;
-		 //存储当前像素位置的匹配误差
 	((float*)searchImg.data)[corr_i *sub_w2 + corr_j] = total_corr;
 		
 		  }
