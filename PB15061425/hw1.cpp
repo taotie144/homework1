@@ -1,6 +1,6 @@
 #include "SubImageMatch.h"
 
-//1.彩色转灰度
+//1
 int ustc_ConvertBgr2Gray(Mat bgrImg, Mat& grayImg)
 {
 	if (nullptr == bgrImg.data || nullptr == grayImg.data)
@@ -25,7 +25,7 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat& grayImg)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//2.计算梯度
+//2
 int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y)
 {
 	if (nullptr == grayImg.data || nullptr == gradImg_x.data || nullptr == gradImg_y.data)
@@ -73,7 +73,7 @@ return SUB_IMAGE_MATCH_FAIL;
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//3.幅值图和角度图
+//3
 int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 {
 	if (nullptr == gradImg_x.data || nullptr == gradImg_y.data || nullptr == angleImg.data || nullptr == magImg.data)
@@ -107,7 +107,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//4.灰度转二值
+//4
 int ustc_Threshold(Mat grayImg, Mat& binaryImg, int th)
 {
 	if (nullptr == grayImg.data || nullptr == binaryImg.data)
@@ -139,7 +139,7 @@ int ustc_Threshold(Mat grayImg, Mat& binaryImg, int th)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//5.计算直方图
+//5
 int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 {
 	if (nullptr == grayImg.data)
@@ -157,7 +157,7 @@ int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 	int i, j;
 	uchar *p = grayImg.data + grayImg.rows*grayImg.cols - 1;
 
-	for (i = 255;i >= 0;i--)//清空直方图
+	for (i = 255;i >= 0;i--)//
 	{
 		hist[i] = 0;
 	}
@@ -185,7 +185,7 @@ int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//6.利用亮度进行子图匹配
+//6
 int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (nullptr == grayImg.data || nullptr == subImg.data)
@@ -208,15 +208,15 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 	int col_scan = grayImg.cols - subImg.cols;
 	int sub_row_scan = subImg.rows - 1;
 	int sub_col_scan = subImg.cols - 1;
-	uchar *p;//大图计算用指针
-	uchar *q;//子图计算用指针
-	int i, j, m;//循环变量
-	int shang, yushu;//最内层循环使用
+	uchar *p;
+	uchar *q;
+	int i, j, m;
+	int shang, yushu;
 	int temp_gray_i;
-	int minx = 0, miny = 0;//亮度差之和最小子图左上角坐标
-	int sum_min = INT_MAX;//亮度差之和最小值
-	int sum = 0;//亮度差之和
-	int sub;//亮度差
+	int minx = 0, miny = 0;
+	int sum_min = INT_MAX;
+	int sum = 0;
+	int sub;
 
 	for (i = row_scan;i >= 0;i--)
 	{
@@ -224,10 +224,10 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 		for (j = col_scan;j >= 0;j--)
 		{
 			sum = 0;
-			//内层循环
+			
 			for (m = sub_row_scan;m >= 0;m--)
 			{
-				p = grayImg.data + temp_gray_i + j + m*grayImg.cols;//行首
+				p = grayImg.data + temp_gray_i + j + m*grayImg.cols;
 				q = subImg.data + m*subImg.cols;
 				shang = subImg.cols >> 3;
 				yushu = subImg.cols - ((subImg.cols >> 3) << 3);
@@ -240,7 +240,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 				}
 				for (;shang > 0;shang--)
 				{
-					sub = *p - *q;   if (sub > 0) sum += sub;   else sum -= sub; p--; q--;//处理一个像素
+					sub = *p - *q;   if (sub > 0) sum += sub;   else sum -= sub; p--; q--;
 					sub = *p - *q;   if (sub > 0) sum += sub;   else sum -= sub; p--; q--;
 					sub = *p - *q;   if (sub > 0) sum += sub;   else sum -= sub; p--; q--;
 					sub = *p - *q;   if (sub > 0) sum += sub;   else sum -= sub; p--; q--;
@@ -264,7 +264,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//7.利用色彩进行子图匹配
+//7
 int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 {
 	if (nullptr == colorImg.data || nullptr == subImg.data)
@@ -289,18 +289,18 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 	int sub_col_scan = subImg.cols * 3 - 1;
 	int color_col = colorImg.cols * 3;
 	int sub_col = subImg.cols * 3;
-	int i, j, m;//循环变量
+	int i, j, m;
 	int k;
 	int shang, yushu;
 	int temp_color_i;
-	uchar *p;//计算用指针
-	uchar *q;//子图计算用指针
+	uchar *p;
+	uchar *q;
 	int temp;
 
-	int minx = 0, miny = 0;//色彩差之和最小子图左上角坐标
-	int msum = INT_MAX;//色彩差之和最小值
-	int sum = 0;//色彩差之和
-	char sub;//色彩差
+	int minx = 0, miny = 0;
+	int msum = INT_MAX;
+	int sum = 0;
+	char sub;
 	char sub1, sub2, sub3, sub4;
 
 	for (i = row_scan;i >= 0;i--)
@@ -312,8 +312,8 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 			k = 3 * j;
 			for (m = sub_row_scan;m >= 0;m--)
 			{
-				p = colorImg.data + temp_color_i + k + m * color_col;//行首
-				q = subImg.data + m * sub_col;//行首
+				p = colorImg.data + temp_color_i + k + m * color_col;
+				q = subImg.data + m * sub_col;
 				shang = sub_col >> 2;
 				yushu = sub_col - ((sub_col >> 2) << 2);
 				for (;yushu > 0;yushu--)
@@ -349,7 +349,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//8.利用亮度相关性进行子图匹配
+//8
 int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (nullptr == grayImg.data || nullptr == subImg.data)
@@ -372,13 +372,13 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 	int col_scan = grayImg.cols - subImg.cols;
 	int sub_row_scan = subImg.rows - 1;
 	int sub_col_scan = subImg.cols - 1;
-	int temp_gray = 0, temp_sub = 0;//索引
-	int temp_gray_i, temp_gray_m;//行索引
-	int i, j, m;//ij为大图循环变量，mn为子图循环变量
+	int temp_gray = 0, temp_sub = 0;
+	int temp_gray_i, temp_gray_m;
+	int i, j, m;
 	long long gray_sub = 0, gray_gray = 0, sub_sub = 0;//s*t,s*s,t*t
 	int s_gray1, s_gray2, s_gray3, s_gray4;
 	int t_sub1, t_sub2, t_sub3, t_sub4;
-	float relation = 0, relation_max = 0;//相关性及其最大值
+	float relation = 0, relation_max = 0;
 	int x_max = 0, y_max = 0;
 	uchar *p, *q;
 	int shang, yushu;
@@ -388,12 +388,12 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 		temp_gray_i = i*grayImg.cols;
 		for (j = col_scan;j >= 0;j--)
 		{
-			//子图循环
+			
 			gray_sub = 0;gray_gray = 0;sub_sub = 0;
 			for (m = sub_row_scan;m >= 0;m--)
 			{
-				p = grayImg.data + temp_gray_i + j + m*grayImg.cols;//行首
-				q = subImg.data + m*subImg.cols;//行首
+				p = grayImg.data + temp_gray_i + j + m*grayImg.cols;
+				q = subImg.data + m*subImg.cols;
 				shang = subImg.cols >> 2;
 				yushu = subImg.cols - ((subImg.cols >> 2) << 2);
 				for (;yushu > 0;yushu--)
@@ -428,7 +428,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//9.利用角度值进行子图匹配
+//9
 int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (nullptr == grayImg.data || nullptr == subImg.data)
@@ -449,22 +449,22 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 
 	Mat grayImg_angle(grayImg.rows, grayImg.cols, CV_8UC1);
 	Mat subImg_angle(subImg.rows, subImg.cols, CV_8UC1);
-	int i, j, m, n;//循环变量
-	int grad_x, grad_y;//梯度
+	int i, j, m, n;
+	int grad_x, grad_y;
 	int row_1, row_2, row_3;
 	int col_1, col_3;
 	uchar *data;
-	int anglesum, anglesum_min = INT_MAX;//角度差之和及其最小值
-	int x_min, y_min;//坐标
-	int scan_rows = grayImg.rows - subImg.rows + 1;//大图扫描行数
-	int scan_cols = grayImg.cols - subImg.cols + 1;//大图扫描列数
+	int anglesum, anglesum_min = INT_MAX;
+	int x_min, y_min;
+	int scan_rows = grayImg.rows - subImg.rows + 1;
+	int scan_cols = grayImg.cols - subImg.cols + 1;
 	int angle;
 	int sub;
 	uchar *p, *q;
 	int shang, yushu;
 	int temp_gray_i;
 
-	//灰度图求角度
+	//
 	data = grayImg.data;  
 	for (i = 1;i < grayImg.rows - 1;i++)
 	{
@@ -489,7 +489,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 		}
 	}
 
-	//模板子图求角度
+	
 	data = subImg.data;  
 	for (i = 1;i < subImg.rows - 1;i++)
 	{
@@ -514,20 +514,19 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 		}
 	}
 
-	//匹配求坐标
+	
 	for (i = 0;i < scan_rows;i++)
 	{
 		temp_gray_i = i * grayImg_angle.cols;
 		for (j = 0;j < scan_cols;j++)
 		{
-			//子图循环
+			
 			anglesum = 0;
 			for (m = 0;m < subImg_angle.rows;m++)
 			{
-				p = grayImg_angle.data + temp_gray_i + j + m * grayImg_angle.cols;//行首
-				q = subImg_angle.data + m * subImg_angle.cols;//行首
-				//row_2 = row_1 + j + m*grayImg_angle.cols;//temp_gray
-				//row_3 = m*subImg_angle.cols;//temp_sub
+				p = grayImg_angle.data + temp_gray_i + j + m * grayImg_angle.cols;
+				q = subImg_angle.data + m * subImg_angle.cols;
+				
 				shang = subImg_angle.cols >> 3;
 				yushu = subImg_angle.cols - ((subImg_angle.cols >> 3) << 3);
 				for (;yushu > 0;yushu--)
@@ -561,7 +560,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//10.利用幅值进行子图匹配
+//10
 int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (nullptr == grayImg.data || nullptr == subImg.data)
@@ -580,23 +579,23 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 		return SUB_IMAGE_MATCH_FAIL;
 	}
 
-	Mat grayImg_mag(grayImg.rows, grayImg.cols, CV_8UC1);//大图幅值图
-	Mat subImg_mag(subImg.rows, subImg.cols, CV_8UC1);//子图幅值图
-	int i, j, m;//循环变量
-	int grad_x, grad_y;//梯度
+	Mat grayImg_mag(grayImg.rows, grayImg.cols, CV_8UC1);
+	Mat subImg_mag(subImg.rows, subImg.cols, CV_8UC1);
+	int i, j, m;
+	int grad_x, grad_y;
 	int row_1, row_2, row_3;
 	int col_1, col_3;
 	uchar *data;
-	int magsum, magsum_min = INT_MAX;//幅值差之和及其最小值
-	int x_min, y_min;//坐标
-	int scan_rows = grayImg.rows - subImg.rows + 1;//大图扫描行数
-	int scan_cols = grayImg.cols - subImg.cols + 1;//大图扫描列数
+	int magsum, magsum_min = INT_MAX;
+	int x_min, y_min;
+	int scan_rows = grayImg.rows - subImg.rows + 1;
+	int scan_cols = grayImg.cols - subImg.cols + 1;
 	int sub;
 	int temp_gray_i;
 	uchar *p, *q;
 	int shang, yushu;
 
-	//灰度图求幅值
+	
 	data = grayImg.data;
 	for (i = grayImg.rows - 2;i > 0;i--)
 	{
@@ -613,7 +612,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 		}
 	}
 
-	//模板子图求幅值
+	
 	data = subImg.data;
 	for (i = 1;i < subImg.rows - 1;i++)
 	{
@@ -630,18 +629,18 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 		}
 	}
 
-	//匹配求坐标
+	
 	for (i = 0;i < scan_rows;i++)
 	{
 		temp_gray_i = i*grayImg_mag.cols;
 		for (j = 0;j < scan_cols;j++)
 		{
-			//子图循环
+			
 			magsum = 0;
 			for (m = 0;m < subImg_mag.rows;m++)
 			{
-				p = grayImg_mag.data + temp_gray_i + j + m * grayImg_mag.cols;//行首
-				q = subImg_mag.data + m * subImg_mag.cols;//子图行首
+				p = grayImg_mag.data + temp_gray_i + j + m * grayImg_mag.cols;
+				q = subImg_mag.data + m * subImg_mag.cols;
 				shang = subImg_mag.cols >> 2;
 				yushu = subImg_mag.cols - ((subImg_mag.cols >> 2) << 2);
 				for (;yushu > 0;yushu--)
@@ -674,7 +673,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 	return SUB_IMAGE_MATCH_OK;
 }
 
-//11.利用直方图进行子图匹配
+//11.
 int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (nullptr == grayImg.data || nullptr == subImg.data)
@@ -695,44 +694,41 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 
 	int gray_hist[256] = { 0 };
 	int sub_hist[256] = { 0 };
-	int i, j, m, n;//循环变量
+	int i, j, m, n;//
 	int scan_rows = grayImg.rows - subImg.rows;
 	int scan_cols = grayImg.cols - subImg.cols;
-	int sum, sum_min = INT_MAX;//差之和 差之和最小值
-	int x_min, y_min;//坐标
+	int sum, sum_min = INT_MAX;
+	int x_min, y_min;
 	int sub_row_1 = subImg.rows - 1;
 	int sub_col_1 = subImg.cols - 1;
 	int temp_row_i;
 	int shang, yushu;
-	uchar *p;//指向计算的像素
+	uchar *p;
 
-	//子图直方图
+	
 	for (i = subImg.rows*subImg.cols - 1;i >= 0;i--)
 	{
 		sub_hist[*(subImg.data + i)]++;
 	}
 
-	//匹配外层循环
+	
 	for (i = scan_rows;i >= 0;i--)
 	{
 		temp_row_i = i*grayImg.cols;
 		for (j = scan_cols;j >= 0;j--)
 		{
-			//前一个匹配位置直方图置零
+			
 			for (m = 255;m >= 0;m--)
 			{
 				gray_hist[m] = 0;
 			}
-			//计算匹配位置直方图
+			
 			for (m = sub_row_1;m >= 0;m--)
 			{
-				p = grayImg.data + temp_row_i + j + m * grayImg.cols;//行首
+				p = grayImg.data + temp_row_i + j + m * grayImg.cols;
 				shang = subImg.cols >> 3;
 				yushu = subImg.cols - ((subImg.cols >> 3) << 3);
-				/*for (n = sub_col_1;n >= 0;n--)
-				{
-					gray_hist[*p]++;p++;
-				}*/
+				
 				for (;shang > 0;shang--)
 				{
 					gray_hist[*p]++;p++;
@@ -750,7 +746,7 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 					p++;
 				}
 			}
-			//计算直方图之差
+			
 			sum = 0;
 			for (m = 255;m >= 0;m--)
 			{
