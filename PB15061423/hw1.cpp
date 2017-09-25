@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "SubImageMatch.h"
 using namespace cv;
 using namespace std;
 #define IntLargeNum 2147483647
@@ -30,11 +31,7 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat& grayImg)
 		r = bgrImg.data[3 * i + 2];
 		pgray[i] = r*0.299 + g*0.587 + b*0.114;
 	}
-#ifdef IMG_SHOW
-	namedWindow("grayImg", 0);
-	imshow("grayImg", grayImg);
-	waitKey();
-#endif
+
 	if (i == size)
 		return SUB_IMAGE_MATCH_OK;
 	else
@@ -72,22 +69,7 @@ int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y)
 		pgray6 += 2; pgray7 += 2; pgray8 += 2;  pgray9 += 2;
 	}
 	
-#ifdef IMG_SHOW
-	Mat gradImg_x_8U(row, col, CV_8UC1);
-	//为了方便观察，直接取绝对值
-	for (int row_i = 0; row_i < row; row_i++)
-	{
-		for (int col_j = 0; col_j < col; col_j += 1)
-		{
-			int val = ((float*)gradImg_x.data)[row_i * col + col_j];
-			gradImg_x_8U.data[row_i * col + col_j] = abs(val);
-		}
-	}
 
-	namedWindow("gradImg_x_8U", 0);
-	imshow("gradImg_x_8U", gradImg_x_8U);
-	waitKey();
-#endif
 	if (i == num)
 		return SUB_IMAGE_MATCH_OK;
 	else
@@ -125,26 +107,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 		}
 	}
 	
-#ifdef IMG_SHOW
-	Mat angleImg_8U(row, col, CV_8UC1);
-	//为了方便观察，进行些许变化
-	for (int row_i = 0; row_i < row; row_i++)
-	{
-		for (int col_j = 0; col_j < col; col_j += 1)
-		{
-			float angle = ((float*)angleImg.data)[row_i * col + col_j];
-			angle *= 180 / CV_PI;
-			angle += 180;
-			//为了能在8U上显示，缩小到0-180之间
-			angle /= 2;
-			angleImg_8U.data[row_i * col + col_j] = angle;
-		}
-	}
 
-	namedWindow("gradImg_x_8U", 0);
-	imshow("gradImg_x_8U", angleImg_8U);
-	waitKey();
-#endif
 	if (i == row - 1 && j == col - 1)
 		return SUB_IMAGE_MATCH_OK;
 	else
@@ -168,18 +131,10 @@ int ustc_Threshold(Mat grayImg, Mat& binaryImg, int th)
 	for (i = 0; i < size; i++)
 	{
 		pbinary[i] = (((th - (char)pgray[i]) >> 7) && 1) * 255;
-		/*	if (pgray[i] >= th)
-		pdouble[i] = 255;
-		else
-		pdouble[i] = 0;
-		*/
+		
 	}
 	
-#ifdef IMG_SHOW
-	namedWindow("binaryImg", 0);
-	imshow("binaryImg", binaryImg);
-	waitKey();
-#endif
+
 	if (i == size)
 		return SUB_IMAGE_MATCH_OK;
 	else
@@ -482,7 +437,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 		return SUB_IMAGE_MATCH_FAIL;
 }
 //*************8.
-int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)//偏差
+int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
@@ -586,7 +541,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)//偏差
 		return SUB_IMAGE_MATCH_FAIL;
 }
 //************9.
-int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)//偏差
+int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
@@ -723,7 +678,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)//偏差
 		return SUB_IMAGE_MATCH_FAIL;
 }
 //***********10.
-int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)//偏差
+int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
