@@ -1,7 +1,8 @@
 
+
 #include"SubImageMatch.h"
 
-int ustc_Bgr2Gray(Mat colorImg, Mat &grayImg)
+int ustc_ConvertBgr2Gray(Mat colorImg, Mat &grayImg)
 {
 	if (NULL == colorImg.data)
 	{
@@ -97,7 +98,7 @@ int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y)
 	gradImg_x.setTo(0);
 	gradImg_y.setTo(0);
 
-	//计算x方向梯度图
+
 	for (int row_i = 1; row_i < height - 1; row_i++)
 	{
 		for (int col_j = 1; col_j < width - 1; col_j += 1)
@@ -184,7 +185,6 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 	int height = gradImg_x.rows;
 	angleImg.setTo(0);
 	magImg.setTo(0);
-	//计算角度图
 		for (int row_i = 1; row_i < height - 1; row_i++)
 		{
 			for (int col_j = 1; col_j < width - 1; col_j += 1)
@@ -221,9 +221,9 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 					i = i + 180;
 				}
 				int angle = i;
-				//float angle = atan2(grad_y, grad_x);
+				
 				float mag = sqrt(grad_x*grad_x + grad_y*grad_y);
-				//自己找办法优化三角函数速度，并且转化为角度制，规范化到0-360
+			
 				((float*)angleImg.data)[row_i * width + col_j] = angle;
 				((float*)magImg.data)[row_i * width + col_j] = mag;
 			}
@@ -278,13 +278,13 @@ int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 	int width = grayImg.cols;
 	int height = grayImg.rows;
 
-	//直方图清零
+	
 	for (int i = 0; i < hist_len; i++)
 	{
 		hist[i] = 0;
 	}
 
-	//计算直方图
+	
 	for (int row_i = 0; row_i < height; row_i++)
 	{
 		for (int col_j = 0; col_j < width; col_j += 1)
@@ -307,7 +307,6 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 		cout << "subimage is too large." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
-//	int start = clock();
 	int width = grayImg.cols;
 	int height = grayImg.rows;
 	int sub_width = subImg.cols;
@@ -318,32 +317,28 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 	int bigImg_pix;
 	int template_pix;
 
-	//该图用于记录每一个像素位置的匹配误差
 	Mat searchImg=Mat::zeros(height - sub_height, width - sub_width, CV_32FC1);
 	searchImg.setTo(FLT_MAX);
-	//匹配误差初始化
-	//遍历大图每一个像素，注意行列的起始、终止坐标
 	for (int row = 0; row < height - sub_height; row++)
 
 	{
 		for (int col = 0; col < width - sub_width; col++)
 		{
 			total_diff = 0;
-			//遍历模板图上的每一个像素
+			
 			for (int sub_row = 0; sub_row < sub_height; sub_row++)
 			{
                  row_index = row + sub_row;
 				for (int sub_col = 0; sub_col < sub_width; sub_col++)
 				{
-					//大图上的像素位置
 					
 					 col_index = col + sub_col;
 					 bigImg_pix = grayImg.data[row_index * width + col_index];
-					//模板图上的像素
+					
 					 template_pix = subImg.data[sub_row * sub_width + sub_col];
 					total_diff += (bigImg_pix - template_pix)*(2 *!(((bigImg_pix - template_pix) >> 31) & 1)- 1);
 				}
-				//存储当前像素位置的匹配误差
+				
 				((float*)searchImg.data)[row * (width - sub_width) + col] = total_diff;
 			}
 			
@@ -363,8 +358,6 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 	}
 
 }
-	//int end = clock();
-	//cout << (end - start) << endl;
 	return SUB_IMAGE_MATCH_OK;
 }
 
@@ -378,17 +371,16 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y) {
 		cout << "subimage is too large." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
-//	int start = clock();
+
 	int width = colorImg.cols;
 	int height = colorImg.rows;
 	int sub_width = subImg.cols;
 	int sub_height = subImg.rows;
 
-	//该图用于记录每一个像素位置的匹配误差
+	
 	Mat searchImg = Mat::zeros(height - sub_height, width - sub_width, CV_32FC3);
 	searchImg.setTo(FLT_MAX);
-	//匹配误差初始化
-	//遍历大图每一个像素，注意行列的起始、终止坐标
+	
 	for (int row = 0; row < height - sub_height; row++)
 
 	{
@@ -397,32 +389,31 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y) {
 			int total_diff_b= 0;
 			int total_diff_g = 0;
 			int total_diff_r = 0;
-			//遍历模板图上的每一个像素
+			
 			for (int sub_row = 0; sub_row < sub_height; sub_row++)
 			{
                     int row_index = row + sub_row;
 				for (int sub_col = 0; sub_col < sub_width; sub_col++)
 				{
-					//大图上的像素位置
 					
 					int col_index = col + sub_col;
 					int placeindex = 3 * (row_index * width + col_index);
 					int sub_place = 3 * (sub_row*sub_width + sub_col);
 					int bigImg_pix_b = colorImg.data[placeindex];
-					//模板图上的像素
+					
 					int template_pix_b= subImg.data[sub_place];
 					total_diff_b += (bigImg_pix_b - template_pix_b)*(2 * !(((bigImg_pix_b - template_pix_b) >> 31) & 1) - 1);
 					int bigImg_pix_g = colorImg.data[placeindex +1];
-					//模板图上的像素
+					
 					int template_pix_g = subImg.data[sub_place +1];
 					total_diff_g += (bigImg_pix_g - template_pix_g)*(2 * !(((bigImg_pix_g - template_pix_g) >> 31) & 1) - 1);
 					int bigImg_pix_r = colorImg.data[placeindex +2];
-					//模板图上的像素
+					
 					int template_pix_r = subImg.data[sub_place +2];
 					total_diff_r += (bigImg_pix_r - template_pix_r)*(2 * !(((bigImg_pix_r - template_pix_r) >> 31) & 1) - 1);
 
 				}
-				//存储当前像素位置的匹配误差
+			
 				((float*)searchImg.data)[3*(row * (width - sub_width) + col)] = total_diff_b;
 				((float*)searchImg.data)[3 * (row * (width - sub_width) + col)+1] = total_diff_g;
 				((float*)searchImg.data)[3 * (row * (width - sub_width) + col)+2] = total_diff_r;
@@ -447,8 +438,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y) {
 		}
 
 	}
-        //int end = clock();
-	//cout << (end - start) << endl;
+
 	return SUB_IMAGE_MATCH_OK;
 
 }
@@ -463,17 +453,16 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y) {
 		cout << "subimage is too large." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
-	//int start = clock();
+
 	int width = grayImg.cols;
 	int height = grayImg.rows;
 	int sub_width = subImg.cols;
 	int sub_height = subImg.rows;
 
-	//该图用于记录每一个像素位置的R(i,j)
+	
 	Mat searchImg = Mat::zeros(height - sub_height, width - sub_width, CV_32FC1);
 	searchImg.setTo(FLT_MAX);
-	//匹配误差初始化
-	//遍历大图每一个像素，注意行列的起始、终止坐标
+
 	for (int row = 0; row < height - sub_height; row++)
 
 	{
@@ -483,23 +472,23 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y) {
 			float ST = 0;
 			float SS = 0;
 			float TT = 0;
-			//遍历模板图上的每一个像素
+	
 			for (int sub_row = 0; sub_row < sub_height; sub_row++)
 			{
 				for (int sub_col = 0; sub_col < sub_width; sub_col++)
 				{
-					//大图上的像素位置
+					
 					int row_index = row + sub_row;
 					int col_index = col + sub_col;
 					int bigImg_pix = grayImg.data[row_index * width + col_index];
-					//模板图上的像素
+					
 					int template_pix = subImg.data[sub_row * sub_width + sub_col];
 					ST += bigImg_pix*template_pix;
 					TT += bigImg_pix*bigImg_pix;
 					SS += template_pix*template_pix;
 				}
 				R = ST / sqrt(TT*SS);
-				//存储当前像素位置的匹配误差
+				
 				((float*)searchImg.data)[row * (width - sub_width) + col] = R;
 			}
 
@@ -520,8 +509,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y) {
 
 	}
 	
-	//int end = clock();
-	//cout << (end - start) << endl;
+	
 	return SUB_IMAGE_MATCH_OK;
 }
 
@@ -535,7 +523,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y) {
 		cout << "subimage is too large." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
-	//int start = clock();
+	
 	int sub_height = subImg.rows;
 	int sub_width = subImg.cols;
 	Mat sub_gradImg_x(sub_height, sub_width, CV_32FC1);
@@ -561,20 +549,20 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y) {
 		for (int col = 1; col < width - sub_width - 1; col++)
 		{
 			float total_diff = 0;
-			//遍历模板图上的每一个像素
+		
 			for (int sub_row = 1; sub_row < sub_height - 1; sub_row++)
 			{
 				for (int sub_col = 1; sub_col < sub_width - 1; sub_col++)
 				{
-					//大图上的像素位置
+				
 					int row_index = row + sub_row;
 					int col_index = col + sub_col;
 					int bigImg_pix = ((float*)angleImg.data)[row_index * width + col_index];
-					//模板图上的像素
+					
 					int template_pix = ((float*)sub_angleImg.data)[sub_row * sub_width + sub_col];
 					total_diff += (bigImg_pix - template_pix)*(2 * !(((bigImg_pix - template_pix) >> 31) & 1) - 1);
 				}
-				//存储当前像素位置的匹配误差
+				
 				((float*)searchImg.data)[row * (width - sub_width) + col] = total_diff;
 			}
 
@@ -594,8 +582,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y) {
 		}
 
 	}
-//	int end = clock();
-	//cout << end - start << endl;
+
 	return SUB_IMAGE_MATCH_OK;
     
 	
@@ -611,7 +598,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y) {
 		cout << "subimage is too large." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
-	//int start = clock();
+	
 	int sub_height = subImg.rows;
 	int sub_width = subImg.cols;
 	Mat sub_gradImg_x(sub_height, sub_width, CV_32FC1);
@@ -637,22 +624,22 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y) {
 		for (int col = 1; col < width - sub_width-1; col++)
 		{
 			float total_diff = 0;
-			//遍历模板图上的每一个像素
+			
 			for (int sub_row = 1; sub_row < sub_height-1; sub_row++)
 			{
 				for (int sub_col = 1; sub_col < sub_width-1; sub_col++)
 				{
-					//大图上的像素位置
+					
 					int row_index = row + sub_row;
 					int col_index = col + sub_col;
 					float bigImg_pix = ((float*)magImg.data)[row_index * width + col_index];
-					//模板图上的像素
+					
 					float template_pix = ((float*)sub_magImg.data)[sub_row * sub_width + sub_col];
 					int tmpdiffer =(int)( bigImg_pix - template_pix);
 					int antisign = !((tmpdiffer >> 31) & 1);
 					total_diff += (bigImg_pix - template_pix)*(2 * antisign - 1);
 				}
-				//存储当前像素位置的匹配误差
+				
 				((float*)searchImg.data)[row * (width - sub_width) + col] = total_diff;
 			}
 
@@ -672,8 +659,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y) {
 		}
 
 	}
-	//int end = clock();
-	//cout << end - start << endl;
+
 	return SUB_IMAGE_MATCH_OK;
 
 }
@@ -688,7 +674,7 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
 		cout << "subimage is too large." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
-	//int start = clock();
+	
 	int width = grayImg.cols;
 	int height = grayImg.rows;
 	int sub_width = subImg.cols;
@@ -697,23 +683,22 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
 	int sub_hist[256] = { 0 };
 	int tmp_hist[256] = { 0 };
 	ustc_CalcHist(subImg, sub_hist, 256);
-	//该图用于记录每一个像素位置的匹配误差
+	
 	Mat searchImg = Mat::zeros(height - sub_height, width - sub_width, CV_32FC1);
 	searchImg.setTo(FLT_MAX);
-	//匹配误差初始化
-	//遍历大图每一个像素，注意行列的起始、终止坐标
+	
 	for (int row = 0; row < height - sub_height; row++)
 
 	{
 		for (int col = 0; col < width - sub_width; col++)
 		{
 			int total_diff = 0;
-			//直方图清零
+			
 			for (int i = 0; i < hist_len; i++)
 			{
 				tmp_hist[i] = 0;
 			}
-			//计算直方图
+			
 			for (int row_i = 0; row_i < sub_height; row_i++)
 			{
 				for (int col_j = 0; col_j < sub_width; col_j += 1)
@@ -750,8 +735,7 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
 
 
 	}
-	//int end = clock();
-	//cout << end - start << endl;
+
 	return SUB_IMAGE_MATCH_OK;
 }
 
