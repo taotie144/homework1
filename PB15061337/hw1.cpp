@@ -1,5 +1,6 @@
 #include "SubImageMatch.h"
 
+
 #define SUB_IMAGE_MATCH_OK 1
 #define SUB_IMAGE_MATCH_FAIL 0
 
@@ -452,6 +453,7 @@ float FastInvSqrt(float x)
 	return y * (1.47f - 0.47f * x * y * y);
 }
 
+
 int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
@@ -459,67 +461,81 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 		cout << "image is NULL." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
+	
+	if (grayImg.channels() != 1 || subImg.channels() != 1)
+	{
+		cout << "image channel  wrong." << endl;
+		return SUB_IMAGE_MATCH_FAIL;
+	}
+
+	int corr_i, corr_j;
 	int width = grayImg.cols;
 	int height = grayImg.rows;
 	int sub_width = subImg.cols;
 	int sub_height = subImg.rows;
-	int checkhang = height - sub_height;
-	int checklie = width - sub_width;
-	if (checkhang<0 || checklie<0)
+	int sub_h2 = height - sub_height;
+	int sub_w2 = width - sub_width;
+
+	if (sub_w2<0 || sub_h2<0)
 	{
-		cout << "subimage > colorimage,fail" << endl;
+		cout << "size wrong" << endl;
 		return SUB_IMAGE_MATCH_FAIL;
 	}
-	int v_size = width*height;
-	int v_sizesub = sub_width*sub_height;
-	int pfh_sub = 0;
-	for (int ct = 0; ct < v_sizesub; ct++)
-	{
-		pfh_sub += subImg.data[ct] * subImg.data[ct];
-	}
-
-	//该图用于记录每一个像素位置的匹配误差
-	Mat searchImg(height, width, CV_32FC1);
-	//匹配误差初始化
-	searchImg.setTo(FLT_MAX);
-	//遍历大图每一个像素，注意行列的起始、终止坐标
-	for (int i = 0; i <= checkhang; i++)
-	{
-		for (int j = 0; j <= checklie; j++)
-		{
-			//清零
-			int pfh_gray = 0;
-			int fenzi = 0;
-			//计算当前位置直方图
-			for (int x = 0; x < sub_height; x++)
-			{
-				for (int y = 0; y < sub_width; y++)
-				{
-					//大图上的像素位置
-					int row_index = i + x;
-					int col_index = j + y;
-					int bigImg_pix = grayImg.data[row_index * width + col_index];
-					int  subImg_pix = subImg.data[x * sub_width + y];
-					pfh_gray += bigImg_pix*bigImg_pix;
-					fenzi += bigImg_pix*subImg_pix;
+	Mat searchImg(sub_h2, sub_w2, CV_32FC1);
+	int best_x = 0, best_y = 0;
+	int need = sub_height*sub_width;
+	for (corr_i = 0; corr_i <sub_h2; corr_i++)
+	 {
+		for (corr_j = 0; corr_j <sub_w2; corr_j++)
+		 {
+		
+			float xy = 0, x = 0, y = 0, xx = 0, yy = 0;
+			for (int y1 = 0; y1 < sub_height; y1++)
+			 {
+				int row_index = corr_i + y1;
+				int big = row_index * width;
+				int sub = y1 * sub_width;
+				for (int x1 = 0; x1 < sub_width; x1++)
+				 {
+					int col_index = corr_j + x1;
+					int bigImg_pix = grayImg.data[big + col_index];
+					int template_pix = subImg.data[sub + x1];
+					xy += bigImg_pix*template_pix;
+					x += bigImg_pix;
+					y += template_pix;
+					xx += bigImg_pix*bigImg_pix;
+					yy += template_pix*template_pix;
+				
 				}
 			}
-			float fenmu=FastInvSqrt(float (pfh_gray*pfh_sub));
-			float chazhi = ((float)fenzi) / fenmu - 1;
-			//存储当前像素位置的匹配误差
-			((float*)searchImg.data)[i * width + j] =abs(chazhi);
+	float fenzi = need*xy - x*y;
+	float fenmu1 = FastInvSqrt(need*xx - x*x);
+	float fenmu2 = FastInvSqrt(need*yy - y*y);
+	float fenmu = fenmu1*fenmu2;
+	float total_corr = fenzi / fenmu;
+	((float*)searchImg.data)[corr_i *sub_w2 + corr_j] = total_corr;
+		
+		  }
+	}
+float maxcorr = ((float*)searchImg.data)[0];
+for (int i = 0; i < sub_h2; i++)
+	 {
+	for (int j = 0; j < sub_w2; j++)
+		 {
+		float a = ((float*)searchImg.data)[i * sub_w2 + j];
+		int abs_a = (((a - 1) ^ ((a - 1) >> 31)) - ((a - 1) >> 31));
+		int abs_maxcorr = (((maxcorr - 1) ^ ((maxcorr - 1) >> 31)) - ((maxcorr - 1) >> 31));
+		if (abs_a<abs_maxcorr) {
+			maxcorr = a;
+			best_x = j;
+			best_y = i;
+			
+		}
 		}
 	}
-	int min_num = 0;
-	for (int i = 1; i < v_size; i++)
-	{
-		if (((float *)searchImg.data)[i]<((float *)searchImg.data)[min_num])
-			min_num = i;
-	}
-	*x = min_num / width;
-	*y = min_num%width;
-	return SUB_IMAGE_MATCH_OK;
-
+*x = best_x;
+*y = best_y;
+return SUB_IMAGE_MATCH_FAIL;
 }
 
 //函数功能：利用角度值进行子图匹配
@@ -797,4 +813,3 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 	*y = min_num%width;
 	return SUB_IMAGE_MATCH_OK;
 }
-
