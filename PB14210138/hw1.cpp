@@ -12,7 +12,7 @@ using namespace std;
 #define MY_OK 1
 #define MY_FAIL -1
 
-//#ifndef _H_SUB_IMAGE_MATCH_H_
+#ifndef _H_SUB_IMAGE_MATCH_H_
 #define _H_SUB_IMAGE_MATCH_H_
 
 #define SUB_IMAGE_MATCH_OK 1
@@ -258,7 +258,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y) {
     int colorcol = colorImg.cols, colorrow = colorImg.rows, subcol = subImg.cols, subrow = subImg.rows;
     int stepcol = colorcol - subcol + 1, steprow = colorrow - subrow + 1;
-    if (NULL == colorImg.data || NULL == subImg.data || 3 != colorImg.channels() || 3 != subImg.channels() || stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y || CV_8U != colorImg.depth() || CV_8U != subImg.depth()) {   //×ÓÍ¼µÄÆäÖÐÒ»Î¬±ÈÔ­Í¼´óÔò±¨´í
+    if (NULL == colorImg.data || NULL == subImg.data || 3 != colorImg.channels() || 3 != subImg.channels() || stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y || CV_8U != colorImg.depth() || CV_8U != subImg.depth()) {   
         return SUB_IMAGE_MATCH_FAIL;
     }
 
@@ -310,11 +310,11 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y) {
 int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y) {
     int graycol = grayImg.cols, grayrow = grayImg.rows, subcol = subImg.cols, subrow = subImg.rows;
     int stepcol = graycol - subcol + 1, steprow = grayrow - subrow + 1;
-    if (NULL == grayImg.data || NULL == subImg.data || 1 != grayImg.channels() || 1 != subImg.channels() || stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y || CV_8U != grayImg.depth() || CV_8U != subImg.depth()) {   //×ÓÍ¼µÄÆäÖÐÒ»Î¬±ÈÔ­Í¼´óÔò±¨´í
+    if (NULL == grayImg.data || NULL == subImg.data || 1 != grayImg.channels() || 1 != subImg.channels() || stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y || CV_8U != grayImg.depth() || CV_8U != subImg.depth()) {   
         return SUB_IMAGE_MATCH_FAIL;
     }
     float max_corr = -1;
-    *x = 0, *y = 0;   //×¢Òâ*ºÅ
+    *x = 0, *y = 0;   
     for (int i = 0; i < steprow; i++) {
         for (int j = stepcol; j >=0 ; --j) {
             float sum_st = 0;
@@ -342,7 +342,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y) {
 int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y) {
     int graycol = grayImg.cols, grayrow = grayImg.rows, subcol = subImg.cols, subrow = subImg.rows;
     int stepcol = graycol - subcol + 1, steprow = grayrow - subrow + 1;
-    if (stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y) {   //ÆäËûÅÐ¶ÏºóÃæº¯Êý¶¼ÓÐ×ö
+    if (stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y) {   
         return SUB_IMAGE_MATCH_FAIL;
     }
     Mat gradImg_x, gradImg_y, subgradImg_x, subgradImg_y;
@@ -354,22 +354,22 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y) {
         return SUB_IMAGE_MATCH_FAIL;
     }
     int min_total_dif = INT_MAX;
-    *x = 0, *y = 0;   //×¢Òâ*ºÅ
+    *x = 0, *y = 0;   
     for (int i = 0; i < steprow; i++) {
-        for (int j = 0; j < stepcol; j++) {
+    for (int j = 0; j < stepcol; j++) {
             int total_dif = 0;
-            for (int sub_i = subrow; sub_i >=0 ; --sub_i) {
+    for (int sub_i = subrow; sub_i >=0 ; --sub_i) {
                 float *anglepixel = angleImg.ptr<float>(i + sub_i);
                 float *subanglepixel = subangleImg.ptr<float>(sub_i);
-                for (int sub_j = subcol; sub_j >=0 ; --sub_j) {
-                    int pixel_dif = (int)(anglepixel[j + sub_j]) - (int)(subanglepixel[sub_j]);  //¿ìËÙ×ª»¯ÎªÕûÊý£¿
-                    if (pixel_dif < 0) {
+   for (int sub_j = subcol; sub_j >=0 ; --sub_j) {
+            int pixel_dif = (int)(anglepixel[j + sub_j]) - (int)(subanglepixel[sub_j]);  
+            if (pixel_dif < 0) {
                         pixel_dif = -pixel_dif;
                     }
-                    if (pixel_dif < 180) {
+            if (pixel_dif < 180) {
                         total_dif += pixel_dif;
                     }
-                    else {
+            else {
                         total_dif += 360 - pixel_dif;
                     }
                 }
@@ -386,34 +386,35 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y) {
 int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y) {
     int graycol = grayImg.cols, grayrow = grayImg.rows, subcol = subImg.cols, subrow = subImg.rows;
     int stepcol = graycol - subcol + 1, steprow = grayrow - subrow + 1;
-    if (stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y) {   //ÆäËûÅÐ¶ÏºóÃæº¯Êý¶¼ÓÐ×ö
-        return SUB_IMAGE_MATCH_FAIL;
-    }
-    Mat gradImg_x, gradImg_y, subgradImg_x, subgradImg_y;
+        Mat gradImg_x, gradImg_y, subgradImg_x, subgradImg_y;
     if (SUB_IMAGE_MATCH_FAIL == ustc_CalcGrad(grayImg, gradImg_x, gradImg_y) || SUB_IMAGE_MATCH_FAIL == ustc_CalcGrad(subImg, subgradImg_x, subgradImg_y)) {
         return SUB_IMAGE_MATCH_FAIL;
     }
+
+    if (stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y) {  
+        return SUB_IMAGE_MATCH_FAIL;
+    }
+   
     Mat angleImg, magImg, subangleImg, submagImg;
     if (SUB_IMAGE_MATCH_FAIL == ustc_CalcAngleMag(gradImg_x, gradImg_y, angleImg, magImg) || SUB_IMAGE_MATCH_FAIL == ustc_CalcAngleMag(subgradImg_x, subgradImg_y, subangleImg, submagImg)) {
         return SUB_IMAGE_MATCH_FAIL;
     }
     int min_total_dif = INT_MAX;
-    *x = 0, *y = 0;   //×¢Òâ*ºÅ
+    *x = 0, *y = 0;   
     for (int i = 0; i < steprow; i++) {
-        for (int j = 0; j < stepcol; j++) {
-            int total_dif = 0;
-            for (int sub_i = subrow; sub_i >=0 ; --sub_i) {
-                float *magpixel = magImg.ptr<float>(i + sub_i);
-                float *submagpixel = submagImg.ptr<float>(sub_i);
-                for (int sub_j = subcol; sub_j >=0 ; --sub_j) {
-                    int pixel_dif = (int)(magpixel[j + sub_j]) - (int)(submagpixel[sub_j]);
-                    if (pixel_dif > 0) {
-                        total_dif += pixel_dif;
+    for (int j = 0; j < stepcol; j++) {
+    int total_dif = 0;
+   for (int sub_i = subrow; sub_i >=0 ; --sub_i) {
+    float *magpixel = magImg.ptr<float>(i + sub_i);
+float *submagpixel = submagImg.ptr<float>(sub_i);
+ for (int sub_j = subcol; sub_j >=0 ; --sub_j) {
+    int pixel_dif = (int)(magpixel[j + sub_j]) - (int)(submagpixel[sub_j]);
+    if (pixel_dif > 0) {
+    total_dif += pixel_dif;
                     }
-                    else {
+        else {
                         total_dif += -pixel_dif;
                     }
-                    //total_dif += (pixel_dif > 0) ? pixel_dif : -pixel_dif;
                 }
             }
             if (total_dif < min_total_dif) {
@@ -428,7 +429,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y) {
 int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
     int graycol = grayImg.cols, grayrow = grayImg.rows, subcol = subImg.cols, subrow = subImg.rows;
     int stepcol = graycol - subcol + 1, steprow = grayrow - subrow + 1;
-    if (NULL == grayImg.data || 1 != grayImg.channels() || stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y || CV_8U != grayImg.depth()) {   //subÒÑÔÚÏÂÃæÅÐ¶Ï
+    if (NULL == grayImg.data || 1 != grayImg.channels() || stepcol <= 0 || steprow <= 0 || NULL == x || NULL == y || CV_8U != grayImg.depth()) {   
         return SUB_IMAGE_MATCH_FAIL;
     }
     int* hist_temp = new int[256];
@@ -437,30 +438,29 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
         return SUB_IMAGE_MATCH_FAIL;
     }
     int min_total_dif = INT_MAX;
-    *x = 0, *y = 0;   //×¢Òâ*ºÅ
+    *x = 0, *y = 0;   
     for (int i = 0; i < steprow; i++) {
         for (int j = 0; j < stepcol; j++) {
-            for (int k = 256; k >=0 ; --k) {
+        for (int k = 256; k >=0 ; --k) {
                 hist_temp[k] = 0;
             }
-            for (int sub_i = 0; sub_i < subrow; sub_i++) {
+        for (int sub_i = 0; sub_i < subrow; sub_i++) {
                 uchar *graypixel = grayImg.ptr<uchar>(i + sub_i);
-                for (int sub_j = subcol; sub_j >=0 ; --sub_j) {
+        for (int sub_j = subcol; sub_j >=0 ; --sub_j) {
                     hist_temp[graypixel[j + sub_j]]++;
                 }
             }
             int total_dif = 0;
-            for (int k = 256; k >=0 ; --k) {
+        for (int k = 256; k >=0 ; --k) {
                 int hist_dif = hist_temp[k] - sub_hist_temp[k];
-                if (hist_dif > 0) {
+        if (hist_dif > 0) {
                     total_dif += hist_dif;
                 }
-                else {
+        else {
                     total_dif += -hist_dif;
                 }
-                //total_dif += (hist_dif > 0) ? hist_dif : -hist_dif;
             }
-            if (total_dif < min_total_dif) {
+         if (total_dif < min_total_dif) {
                 *x = j, *y = i;
                 min_total_dif = total_dif;
             }
