@@ -25,7 +25,7 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat& grayImg)
 #ifdef IMG_SHOW
 	/*namedWindow("grayImg", 0);
 	imshow("grayImg", grayImg);
-	waitKey();*/
+	waitKey();*/ 
 #endif
 }
  
@@ -42,7 +42,7 @@ int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y)
 
 	Mat gradImg_x_ext(height, width, CV_32FC1);
 	Mat gradImg_y_ext(height, width, CV_32FC1);
-	 
+
 	for (int row_i = 1; row_i < height - 1; row_i++)
 	{
 		for (int col_j = 1; col_j < width - 1; col_j += 1)
@@ -158,8 +158,7 @@ int ustc_Threshold(Mat grayImg, Mat& binaryImg, int th)
 	{
 		int temp0 = row_i * width;
 		for (int col_j = 0; col_j < width; col_j += 2)
-		{
-			//int pixVal = grayImg.at<uchar>(row_i, col_j);
+		{ 
 			int temp1 = temp0 + col_j;
 			int pixVal = grayImg.data[temp1];
 			int dstVal = 0;
@@ -491,7 +490,6 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 	searchImg.setTo(FLT_MAX);
 	Mat resultImg(sub_height, sub_width, CV_8UC1);
 
-	 
 	for (int i = 1; i <height_diff - 1; i++)
 	{
 		for (int j = 1; j <width_diff - 1; j++)
@@ -502,7 +500,6 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 			{
 				for (int y = 0; y < sub_width; y++)
 				{
-					 
 					 
 					int row_i = i + x;
 					int col_j = j + y;
