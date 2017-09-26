@@ -1,7 +1,9 @@
 #include "SubImageMatch.h"
 using namespace cv;
 using namespace std;
-
+typedef unsigned int uint;
+typedef unsigned char uchar;
+typedef unsigned short ushort;
 
 //#define IMG_SHOW
 #define MY_OK 1
@@ -412,9 +414,9 @@ int ustc_Threshold(Mat grayImg, Mat& binaryImg, int th)
 		return MY_FAIL;
 	}
 
-	//Mat binaryImg(grayImg.rows, grayImg.cols, CV_8UC1);
+	
 
-	//int th = 100;
+	
 	if (th > 255 || th < 0){
 		cout << "error!" << endl;
 		return MY_FAIL;
