@@ -4,7 +4,7 @@
 #include<stdio.h>
 #include<iostream>
 #include"SubImageMatch.h"
-#include "opencv2/imgproc.hpp"
+//#include "opencv2/imgproc.hpp"
 #include<math.h>
 
 //#define IMG_SHOW
