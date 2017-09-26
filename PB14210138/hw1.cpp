@@ -12,7 +12,6 @@ using namespace std;
 #define MY_OK 1
 #define MY_FAIL -1
 
-#ifndef _H_SUB_IMAGE_MATCH_H_
 #define _H_SUB_IMAGE_MATCH_H_
 
 #define SUB_IMAGE_MATCH_OK 1
