@@ -1,4 +1,5 @@
 #include "SubImageMatch.h"
+
 // 作业1------------------------------------------------------------------
 int ustc_ConvertBgr2Gray(Mat bgrImg, Mat* grayImg)
 {
@@ -7,7 +8,6 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat* grayImg)
 		cout << "image is NULL." << endl;
 		return MY_FAIL;
 	}
-
 	int width = bgrImg.cols;
 	int height = bgrImg.rows;
 
@@ -23,14 +23,7 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat* grayImg)
 			(*grayImg).data[i] = grayVal;
 		}
 	}
-
 }
-
-
-
-
-//-----------------------------------------------------------------------------------
-
 //作业2
 
 int ustc_CalcGrad(Mat grayImg, Mat* gradImg_x, Mat* gradImg_y)
@@ -42,6 +35,7 @@ int ustc_CalcGrad(Mat grayImg, Mat* gradImg_x, Mat* gradImg_y)
 	}
 	int width = grayImg.cols;
 	int height = grayImg.rows;
+
 	for (int row_i = 1; row_i < height - 1; row_i++)
 	{
 		for (int col_j = 1; col_j < width - 1; col_j += 1)
@@ -75,7 +69,7 @@ int ustc_CalcGrad(Mat grayImg, Mat* gradImg_x, Mat* gradImg_y)
 			int val_x = ((*gradImg_x).data)[row_i * width + col_j];
 			int val_y = ((*gradImg_y).data)[row_i * width + col_j];
 			gradImg_x_8U.data[row_i * width + col_j] = (-((val_x >> 31) << 1) + 1) * val_x; //取绝对值
-			gradImg_y_8U.data[row_i * width + col_j] =(-((val_y >> 31) << 1) + 1) * val_y;  //取绝对值
+			gradImg_y_8U.data[row_i * width + col_j] = (-((val_y >> 31) << 1) + 1) * val_y;  //取绝对值
 		}
 	}
 
@@ -88,7 +82,6 @@ int ustc_CalcGrad(Mat grayImg, Mat* gradImg_x, Mat* gradImg_y)
 #endif
 
 }
-//------------------------------------------------------------------
 //3.
 
 int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat* angleImg, Mat* magImg)
@@ -109,7 +102,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat* angleImg, Mat* magImg)
 			int grad_y = (gradImg_y.data)[row_i * width + col_j];
 			int angle = atan2(grad_y, grad_x);
 			int x = grad_y * grad_y + grad_x * grad_x;
-	//		int mag =(( x- 0x3f800000)>>1)+ 0x3f800000;
+
 			int mag = sqrt(x);
 			//自己找办法优化三角函数速度，并且转化为角度制，规范化到0-360
 			((*angleImg).data)[row_i * width + col_j] = angle;
@@ -147,7 +140,8 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat* angleImg, Mat* magImg)
 
 //--------------------------------------------------------------
 //4.
-int ustc_Threshold(Mat grayImg,Mat *binaryImg,int th)
+
+int ustc_Threshold(Mat grayImg, Mat *binaryImg, int th)
 {
 	if (NULL == grayImg.data)
 	{
@@ -192,9 +186,7 @@ int ustc_Threshold(Mat grayImg,Mat *binaryImg,int th)
 
 
 
-//-------------------------------------------------------
-//5.
-int ustc_CalcHist(Mat grayImg, int* hist,int hist_len)
+int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 {
 	if (NULL == grayImg.data || NULL == hist)
 	{
@@ -204,7 +196,6 @@ int ustc_CalcHist(Mat grayImg, int* hist,int hist_len)
 
 	int width = grayImg.cols;
 	int height = grayImg.rows;
-	
 	//计算直方图
 	for (int row_i = 0; row_i < height; row_i++)
 	{
@@ -224,21 +215,21 @@ int ustc_CalcHist(Mat grayImg, int* hist,int hist_len)
 			max = hist[i];
 		}
 	}
-	Mat showImg(max+100,256, CV_8UC1);
+	Mat showImg(max + 100, 256, CV_8UC1);
+
 	showImg.setTo(0);
 	for (int i = 0; i < hist_len; ++i)
 	{
 		cout << hist[i] << endl;
-		line(showImg,Point(i, max + 100),Point(i, max + 100 -hist[i]), 255,1, 8, 0);
+		line(showImg, Point(i, max + 100), Point(i, max + 100 - hist[i]), 255, 1, 8, 0);
 	}
-	
+
 #ifdef IMG_SHOW
 	namedWindow("showImg", 0);
 	imshow("showImg", showImg);
 	waitKey();
 #endif
 }
-
 
 //---------------------------------------------------------------------
 //6.
@@ -307,12 +298,11 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int *x, int *y)
 	imshow("showImg", showImg);
 	waitKey();
 #endif
+
 	*x = min_height;
 	*y = min_width;
-	
-
-
 }
+
 //----------------------------------------------------------
 //7.
 int ustc_SubImgMatch_bgr(Mat grayImg, Mat subImg,int* x,int* y)
@@ -326,7 +316,7 @@ int ustc_SubImgMatch_bgr(Mat grayImg, Mat subImg,int* x,int* y)
 	int height = grayImg.rows;
 	int sub_width = subImg.cols;
 	int sub_height = subImg.rows;
-	
+
 	Mat searchImg(height, width, CV_32FC1);
 	searchImg.setTo(FLT_MAX);
 	//遍历大图每一个像素，注意行列的起始、终止坐标
@@ -372,10 +362,10 @@ int ustc_SubImgMatch_bgr(Mat grayImg, Mat subImg,int* x,int* y)
 			}
 		}
 	}
+
 	*x = min_height;
 	*y= min_width ;
 }
-
 
 //-------------------------------------------------------
 //8.
@@ -443,6 +433,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg,int* x,int* y)
 //-------------------------------------------------------
 //9.
 int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg,int* x,int* y)
+
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
@@ -479,7 +470,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg,int* x,int* y)
 	Mat subImg_y(height_sub, width_sub, CV_32FC1);
 	subImg_x.setTo(0);
 	subImg_y.setTo(0);
-	
+
 	int flag2 = ustc_CalcGrad(subImg, &subImg_x, &subImg_y);
 	Mat angleImg_sub(height_sub, width_sub, CV_8UC1);
 	angleImg_sub.setTo(0);
@@ -658,7 +649,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg,int* x,int* y)
 		}
 	}
 	*x = min_height;
-    *y = min_width;
+  *y = min_width;
 
 }
 
@@ -692,7 +683,6 @@ int ustc_Cal(Mat subImg, int* hist)
 }
 int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 {
-	
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
 		cout << "image is NULL." << endl;
@@ -760,12 +750,6 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 			}
 		}
 	}
-
 	*x = min_height;
 	*y = min_width;
-
-
-
 }
-
-
