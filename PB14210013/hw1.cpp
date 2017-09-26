@@ -1,4 +1,5 @@
 #include "SubImageMatch.h"
+#define MY_FAIL -1
 int ustc_ConvertBgr2Gray(Mat bgrImg, Mat& grayImg)
 {
 	if (NULL == bgrImg.data)
