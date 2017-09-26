@@ -48,7 +48,7 @@ int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y){
 	int height = grayImg.rows;
 	int grad_x, grad_y;
 
-	//����x�����ݶ�ͼ
+
 	for (int row_i = 1; row_i < height - 1; row_i++)
 	{
 		int temp0 = row_i*width;
@@ -71,7 +71,7 @@ int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y){
 		}
 	}
 
-	//����y�����ݶ�ͼ
+
 	for (int row_i = 1; row_i < height - 1; row_i++)
 	{
 		int temp0 = row_i*width;
@@ -94,7 +94,7 @@ int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y){
 
 #ifdef IMG_SHOW
 	Mat gradImg_x_8U(height, width, CV_8UC1);
-	//Ϊ�˷����۲죬ֱ��ȡ����ֵ
+
 	for (int row_i = 0; row_i < height; row_i++)
 	{
 		for (int col_j = 0; col_j < width; col_j += 1)
@@ -109,7 +109,7 @@ int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y){
 	waitKey();
 
 	Mat gradImg_y_8U(height, width, CV_8UC1);
-	//Ϊ�˷����۲죬ֱ��ȡ����ֵ
+
 	for (int row_i = 0; row_i < height; row_i++)
 	{
 		for (int col_j = 0; col_j < width; col_j += 1)
@@ -139,7 +139,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 
 
 
-	//�����Ƕ�ͼ
+
 	for (int row_i = 1; row_i < height - 1; row_i++)
 	{
 		for (int col_j = 1; col_j < width - 1; col_j += 1)
@@ -170,7 +170,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 
 #ifdef IMG_SHOW
 	Mat angleImg_8U(height, width, CV_8UC1);
-	//Ϊ�˷����۲죬����Щ���仯
+	
 	for (int row_i = 0; row_i < height; row_i++)
 	{
 		for (int col_j = 0; col_j < width; col_j += 1)
@@ -178,7 +178,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 			float angle = ((float*)angleImg.data)[row_i * width + col_j];
 			angle *= 180 / CV_PI;
 			angle += 180;
-			//Ϊ������8U����ʾ����С��0-180֮��
+			
 			angle /= 2;
 			angleImg_8U.data[row_i * width + col_j] = angle;
 		}
@@ -287,7 +287,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 			int row_index = 0 + i;
 			int col_index = 0 + j;
 			int bigImg_pix = grayImg.data[row_index * width + col_index];
-			//ģ��ͼ�ϵ�����
+		
 			int template_pix = subImg.data[i* sub_width + j];
 			int aa = bigImg_pix - template_pix;
 			int bb = aa >> 31;
@@ -299,23 +299,23 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 		}
 	}
 
-	//������ͼÿһ�����أ�ע�����е���ʼ����ֹ����
+
 	for (int i = 0; i < height - sub_height; i++)
 	{
 		for (int j = 0; j < width - sub_width; j++)
 		{
 			int total_diff = 0;
-			//����ģ��ͼ�ϵ�ÿһ������
+			
 			for (int x0 = 0; x0 < sub_height; x0++)
 			{
 				for (int y0 = 0; y0 < sub_width; y0++)
 				{
 
-					//��ͼ�ϵ�����λ��
+					
 					int row_index = i + y0;
 					int col_index = j + x0;
 					int bigImg_pix = grayImg.data[row_index * width + col_index];
-					//ģ��ͼ�ϵ�����
+					
 					int template_pix = subImg.data[y0 * sub_width + x0];
 
 
@@ -366,7 +366,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 			bigImg_b = colorImg.data[(i*width + j) * 3];
 			bigImg_g = colorImg.data[(i*width + j) * 3 + 1];
 			bigImg_r = colorImg.data[(i*width + j) * 3 + 2];
-			//ģ��ͼ�ϵ�����
+		
 			sub_b = subImg.data[(i*sub_width + j) * 3];
 			sub_g = subImg.data[(i*sub_width + j) * 3 + 1];
 			sub_r = subImg.data[(i*sub_width + j) * 3 + 2];
@@ -439,7 +439,6 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 		for (int j = 0; j< sub_width; j++)
 		{
 			bigImg_pix = grayImg.data[i*width + j];
-			//ģ��ͼ�ϵ�����
 			template_pix = subImg.data[i*sub_width + j];
 			temp1 += bigImg_pix*template_pix;
 			temp2 += bigImg_pix*bigImg_pix;
@@ -546,7 +545,6 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 			float template_pix = ((float*)sub_angleImg.data)[i* sub_width + j];
 
 
-			//ģ��ͼ�ϵ�����
 
 
 			min += abs(bigImg_pix - template_pix);
@@ -560,13 +558,12 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 		for (int j = 0; j < gray_width - sub_width; j++)
 		{
 			float total_diff = 0;
-			//����ģ��ͼ�ϵ�ÿһ������
 			for (int x0 = 0; x0 < sub_height; x0++)
 			{
 				for (int y0 = 0; y0 < sub_width; y0++)
 				{
 
-					//��ͼ�ϵ�����λ��
+				
 					int row_index = i + y0;
 					int col_index = j + x0;
 
@@ -655,7 +652,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 			float template_pix = ((float*)sub_magImg.data)[i* sub_width + j];
 
 
-			//ģ��ͼ�ϵ�����
+		
 
 
 			min += abs(bigImg_pix - template_pix);
@@ -669,13 +666,13 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 		for (int j = 0; j < gray_width - sub_width; j++)
 		{
 			float total_diff = 0;
-			//����ģ��ͼ�ϵ�ÿһ������
+		
 			for (int x0 = 0; x0 < sub_height; x0++)
 			{
 				for (int y0 = 0; y0 < sub_width; y0++)
 				{
 
-					//��ͼ�ϵ�����λ��
+					
 					int row_index = i + y0;
 					int col_index = j + x0;
 
