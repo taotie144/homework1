@@ -189,7 +189,7 @@ int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 	{
 		hist[i] = 0;
 	}
-	for (int i; i < hen; i++)
+	for (int i=0; i < hen; i++)
 	{
 		hist[*raw_img1]++;
 		raw_img1++;
