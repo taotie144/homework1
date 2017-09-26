@@ -511,7 +511,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 						- grayImg.data[(row_i - 1) * width + col_j - 1]
 						- 2 * grayImg.data[(row_i - 1)* width + col_j]
 						- grayImg.data[(row_i - 1)* width + col_j + 1];
-					//printf("%d\n", y);
+					 
 					int grayImg_grad_y =
 						grayImg.data[(row_i - 1) * width + col_j + 1]
 						+ 2 * grayImg.data[(row_i)* width + col_j + 1]
