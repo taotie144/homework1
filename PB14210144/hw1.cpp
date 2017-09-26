@@ -404,7 +404,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat & angleImg, Mat & magImg
 #endif
 }
 
-int ustc_Threshold(Mat grayImg)
+int ustc_Threshold(Mat grayImg, Mat& binaryImg, int th)
 {
 	if (NULL == grayImg.data)
 	{
@@ -412,9 +412,9 @@ int ustc_Threshold(Mat grayImg)
 		return MY_FAIL;
 	}
 
-	Mat binaryImg(grayImg.rows, grayImg.cols, CV_8UC1);
+	//Mat binaryImg(grayImg.rows, grayImg.cols, CV_8UC1);
 
-	int th = 100;
+	//int th = 100;
 	if (th > 255 || th < 0){
 		cout << "error!" << endl;
 		return MY_FAIL;
