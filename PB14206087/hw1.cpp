@@ -12,6 +12,7 @@
 using namespace std;
 using namespace cv;
 */
+#include "SubImageMatch.h"
 
 int ustc_ConvertBgr2Gray(Mat bgrlmg, Mat& graylmg){
     if (NULL == bgrlmg.data)
@@ -563,59 +564,3 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
     
     return 0;
 }
-/*
-int main(int argc, const char * argv[]) {
-    Mat image;
-    image=imread("/Users/dyh127/Desktop/chenyan/chenyan/opencv3chenyan/opencv3/chenyan.jpg",1);
-    //namedWindow("Display Image",WINDOW_AUTOSIZE);
-    //imshow("Display Image", image);
-    //waitKey(0);
-    int width = image.cols;
-    int height = image.rows;
-    Mat test(height,width,CV_8UC1);
-    Mat test2(height,width,CV_8UC1);
-    Mat test3(50,50,CV_8UC1);
-    Mat test4;
-    ustc_ConvertBgr2Gray(image, test);
-    Mat imagx(height,width,CV_32FC1);
-    Mat imagy(height,width,CV_32FC1);
-    ustc_CalcGrad(test, imagx, imagy);
-    Mat angleimg(height, width, CV_32FC1);
-    Mat magimg(height, width, CV_32FC1);
-    ustc_CalcAngleMag(imagx, imagy, angleimg, magimg);
-    ustc_Threshold(test, test2, 60);
-    int list[256];
-    ustc_CalcHist(test, list, 256);
-    test3=test(Rect(100,10,50,50)).clone();
-    test4=image(Rect(100,10,50,50)).clone();
-    int x;
-    int y;
-    int i;
-    int j;
-    float val;
-    i=ustc_SubImgMatch_hist(test, test3, &x, &y);
-    printf("%d %d %d",x,y,i);
-    /*
-    for (i = 0; i < height;i++)
-    {
-        for (j = 0; j < width;j++)
-        {
-            val=((float*)magimg.data)[i*width+j];
-            printf("%f ",val);
-        }
-        printf("\n");
-    }
-    
-     for(i=0;i<256;i++)
-     {
-     printf("%d ",list[i]);
-     }
-     */
-    namedWindow("grayimg",0);
-    imshow("grayimg", test4);
-    waitKey(0);
-    return 0;
-    
-    
-}
-*/
