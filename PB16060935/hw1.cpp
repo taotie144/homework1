@@ -75,7 +75,7 @@ int ustc_CalcGrad(Mat grayImg, Mat &gradImg_x, Mat &gradImg_y)
 
 #ifdef IMG_SHOW
 	Mat gradImg_x_8U(height, width, CV_8UC1);
-	
+
 	for (int row_i = 0; row_i < height; row_i++)
 	{
 		for (int col_j = 0; col_j < width; col_j += 1)
@@ -127,7 +127,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg) 
 			float grad_y = ((float*)gradImg_y.data)[row_i * width + col_j];
 			float angle = atan2(grad_y, grad_x);
 			float mag = (float)sqrt(grad_x*grad_x + grad_y*grad_y);
-			if (angle < 0) { angle = angle + CV_2PI; }
+			if (angle < 0) { angle = angle + 2 * CV_PI; }
 			angle = angle / CV_PI * 180;
 			((float*)angleImg.data)[row_i * width + col_j] = angle;
 			((float*)magImg.data)[row_i*width + col_j] = mag;
@@ -142,7 +142,7 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg) 
 		for (int col_j = 0; col_j < width; col_j += 1)
 		{
 			float angle = ((float*)angleImg.data)[row_i * width + col_j];
-	
+
 			angle /= 2;
 			angleImg_8U.data[row_i * width + col_j] = angle;
 		}
@@ -360,7 +360,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y) {
 	int height = grayImg.rows;
 	int sub_width = subImg.cols;
 	int sub_height = subImg.rows;
-	if (width < sub_width-1 || height < sub_height-1)
+	if (width < sub_width - 1 || height < sub_height - 1)
 	{
 		cout << "two images' sizes are not suitable." << endl;
 		return SUB_IMAGE_MATCH_FAIL;
@@ -473,12 +473,12 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 					float angle_big = atan2(gradImg_big_y, gradImg_big_x);
 					if (angle_big < 0)
 					{
-						angle_big = angle_big + CV_2PI;
+						angle_big = angle_big + 2 * CV_PI;
 					}
 					float angle_sub = atan2(gradImg_sub_y, gradImg_sub_x);
 					if (angle_sub < 0)
 					{
-						angle_sub = angle_sub + CV_2PI;
+						angle_sub = angle_sub + 2 * CV_PI;
 					}
 					float cha = abs(angle_big - angle_sub);
 					cha = cha / CV_PI * 180;
@@ -613,16 +613,16 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
 	int hist_length = 500;
 	for (int i = 0; i < hist_length; i++)
 	{
-		grayImg_hist[i] = 0; 
+		grayImg_hist[i] = 0;
 		subImg_hist[i] = 0;
 	}
 
 	Mat searchImg(height, width, CV_32FC1);
 	searchImg.setTo(FLT_MAX);
 
-	for (int i = 0; i < (height - sub_height ); i++)
+	for (int i = 0; i < (height - sub_height); i++)
 	{
-		for (int j = 0; j < (width - sub_width ); j++)
+		for (int j = 0; j < (width - sub_width); j++)
 		{
 			int total_diff = 0;
 			for (int i = 0; i < hist_length; i++)
@@ -678,4 +678,3 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
 	}
 	return SUB_IMAGE_MATCH_OK;
 }
-
