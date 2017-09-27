@@ -567,7 +567,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 				{
 					t4 = t3 + subcol_j;
 					T2 = T1 + subcol_j;
-					(float)difference += fabsf(((float*)magImg.data)[t4] - ((float*)sub_magImg.data)[T2]);
+					difference += fabsf(((float*)magImg.data)[t4] - ((float*)sub_magImg.data)[T2]);
 				}
 			}
 			((float*)match_difference.data)[t2-row_i*sub_col] = (float)difference;
@@ -584,7 +584,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 		for (int col_j = 0; col_j < col ; col_j++)
 		{
 			t2 = t1 + col_j;
-			(float)difference = ((float*)match_difference.data)[t2];
+			difference = ((float*)match_difference.data)[t2];
 			if (min < difference)
 			{
 
