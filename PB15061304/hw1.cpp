@@ -1,12 +1,6 @@
-#include "opencv2/opencv.hpp"
-using namespace cv;
-#include <iostream>
-#include <stdio.h>
-using namespace std;
+#include "SubImageMatch.h"
 
-
-
-int ustc_CovertBgr2Gray(Mat bgrImg, Mat &grayImg)
+int ustc_ConvertBgr2Gray(Mat bgrImg, Mat &grayImg)
 {
 	if (NULL == bgrImg.data)
 	{
@@ -219,7 +213,7 @@ int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 
 
 
-int ustc_SubImgmatch_gray(Mat grayImg, Mat subImg, int *x, int *y)
+int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int *x, int *y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
@@ -271,7 +265,7 @@ int ustc_SubImgmatch_gray(Mat grayImg, Mat subImg, int *x, int *y)
 }
 
 
-int ustc_SubImgmatch_bgr(Mat colorImg, Mat subImg, int *mat_x, int *mat_y)
+int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int *mat_x, int *mat_y)
 {
 	if (NULL == colorImg.data || NULL == subImg.data)
 	{
@@ -335,7 +329,7 @@ int ustc_SubImgmatch_bgr(Mat colorImg, Mat subImg, int *mat_x, int *mat_y)
 	}
 }
 
-int ustc_match_hist(Mat grayImg, Mat subImg, int *x, int *y)
+int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int *x, int *y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
@@ -402,7 +396,7 @@ int ustc_match_hist(Mat grayImg, Mat subImg, int *x, int *y)
 	}
 }
 
-int ustc_SubImgmatch_corr(Mat grayImg, Mat subImg, int *mat_x, int *mat_y)
+int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int *mat_x, int *mat_y)
 {
 	if (NULL == grayImg.data || NULL == subImg.data)
 	{
