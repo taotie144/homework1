@@ -1,6 +1,10 @@
 #include "SubImageMatch.h"
 
 
+using namespace cv;
+using namespace std;
+
+
 #define IMG_SHOW
 
 #define MY_OK 1
@@ -203,7 +207,7 @@ int FastArctan(int x, int y)
 		else       return  i;
 	}
 }
-
+//输入x,y值，返回-180~180数值
 
 const int Rootbuf[] = { 1,1,2,3,4,6,8,11,
 16,23,32,45,64,91,128,181,256,362,512,724,1024,1448,2048,2896,4096,5793,8192,11585,16384,23170,32768,46341 };
