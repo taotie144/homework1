@@ -345,7 +345,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 		}
 	}
 
-	float tmp = 1000; *x = 0; *y = 0;
+	float tmp = FLT_MAX; *x = 0; *y = 0;
 	for (int i = 0; i < height - sub_height; i++)
 	{
 		for (int j = 0; j < width - sub_width; j++) {
@@ -353,8 +353,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 				tmp = ((float*)searchImg.data)[i*(width - sub_width) + j];
 				*x = j;
 				*y = i;
-			}
-		
+			}	
 	}
 
 }
@@ -422,7 +421,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y) {
 		}
 	}
 
-	float tmp = 1000; *x = 0; *y = 0;
+	float tmp = FLT_MAX; *x = 0; *y = 0;
 	for (int i = 0; i < height - sub_height; i++)
 	{
 		for (int j = 0; j < width - sub_width; j++) {
@@ -495,7 +494,7 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y) {
 		}
 	}
 
-	float tmp = 0.8; *x = 0; *y = 0;
+	float tmp = 0.5; *x = 0; *y = 0;
 	for (int i = 0; i < height - sub_height; i++)
 	{
 		for (int j = 0; j < width - sub_width; j++) {
@@ -569,7 +568,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y) {
 		}
 	}
 
-	float tmp = 100; *x = 0; *y = 0;
+	float tmp = FLT_MAX; *x = 0; *y = 0;
 	for (int i = 1; i < height - sub_height - 1; i++)
 	{
 		for (int j = 1; j < width - sub_width - 1; j++) {
@@ -646,7 +645,7 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y) {
 		}
 	}
 
-	float tmp = 10; *x = 0; *y = 0;
+	float tmp = FLT_MAX; *x = 0; *y = 0;
 	for (int i = 1; i < height - sub_height-1; i++)
 	{
 		for (int j = 1; j < width - sub_width-1; j++) {
@@ -721,7 +720,7 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y) {
 
 	}
 
-	float tmp = 1000; *x = 0; *y = 0;
+	float tmp = FLT_MAX; *x = 0; *y = 0;
 	for (int i = 0; i < height - sub_height; i++)
 	{
 		for (int j = 0; j < width - sub_width; j++) {
