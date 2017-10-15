@@ -1,4 +1,5 @@
-
+#include <opencv2/opencv.hpp>
+#include <cv.h>
 #include "SubImageMatch.h"
 
 using namespace std;
@@ -13,6 +14,7 @@ inline float mySqrt(float x)
 	x = (x + a / x) * 0.5f;
 	return x;
 }
+
 int ustc_ConvertBgr2Gray(Mat bgrImg, Mat& grayImg)
 {
 //	int a = 114, b = 587, c = 299;
@@ -31,16 +33,17 @@ int ustc_ConvertBgr2Gray(Mat bgrImg, Mat& grayImg)
 int ustc_CalcGrad(Mat grayImg, Mat& gradImg_x, Mat& gradImg_y)
 {
 	int i = 0, j = 0, row = grayImg.rows, col = grayImg.cols;
-	gradImg_x = Mat(row, col, CV_32FC1, 1);
-	gradImg_y = Mat(row, col, CV_32FC1, 1);
+	grayImg.convertTo(grayImg, CV_32FC1, 1.0 / 255);
+	gradImg_x = Mat(row, col, CV_32FC1);
+	gradImg_y = Mat(row, col, CV_32FC1);
 	row--;
 	col--;
 	for (i = 1;i < row;i++)
 	{
 		for (j = 1;j < col;j++)
 		{
-			gradImg_x.at<float>(i, j) = (grayImg.at<uchar>(i - 1, j + 1) + 2 * grayImg.at<uchar>(i, j + 1) + grayImg.at<uchar>(i + 1, j + 1) - grayImg.at<uchar>(i - 1, j - 1) - 2 * grayImg.at<uchar>(i, j - 1) - grayImg.at<uchar>(i + 1, j - 1))/256.0f;
-			gradImg_y.at<float>(i, j) = (grayImg.at<uchar>(i + 1, j - 1) + 2 * grayImg.at<uchar>(i + 1, j) + grayImg.at<uchar>(i + 1, j + 1) - grayImg.at<uchar>(i - 1, j - 1) - 2 * grayImg.at<uchar>(i - 1, j) - grayImg.at<uchar>(i - 1, j + 1))/256.0f;
+			gradImg_x.at<float>(i, j) = grayImg.at<float>(i - 1, j + 1) + 2 * grayImg.at<float>(i, j + 1) + grayImg.at<float>(i + 1, j + 1) - grayImg.at<float>(i - 1, j - 1) - 2 * grayImg.at<float>(i, j - 1) - grayImg.at<float>(i + 1, j - 1);
+			gradImg_y.at<float>(i, j) = grayImg.at<float>(i + 1, j - 1) + 2 * grayImg.at<float>(i + 1, j) + grayImg.at<float>(i + 1, j + 1) - grayImg.at<float>(i - 1, j - 1) - 2 * grayImg.at<float>(i - 1, j) - grayImg.at<float>(i - 1, j + 1);
 		}
 	}
 	return 1;
@@ -50,14 +53,21 @@ int ustc_CalcAngleMag(Mat gradImg_x, Mat gradImg_y, Mat& angleImg, Mat& magImg)
 {
 	int i = 0, j = 0, row = gradImg_x.rows, col = gradImg_x.cols;
 	float temp;
-	angleImg = Mat(row, col, CV_32FC1, 1);
-	magImg = Mat(row, col, CV_32FC1, 1);
+	gradImg_x.convertTo(gradImg_x, CV_8UC1, 255);
+	gradImg_y.convertTo(gradImg_y, CV_8UC1, 255);
+	angleImg = Mat(row, col, CV_32FC1);
+	magImg = Mat(row, col, CV_8UC1);
 	for (i = 0;i < row;i++)
 	{
 		for (j = 0;j < col;j++)
 		{
-			magImg.at<float>(i, j) = mySqrt(gradImg_x.at<float>(i, j)*gradImg_x.at<float>(i, j) + gradImg_y.at<float>(i, j)*gradImg_x.at<float>(i, j));
-			temp = gradImg_y.at<float>(i, j) / gradImg_x.at<float>(i, j);
+			magImg.at<uchar>(i, j) = mySqrt(gradImg_x.at<uchar>(i, j)*gradImg_x.at<uchar>(i, j) + gradImg_y.at<uchar>(i, j)*gradImg_x.at<uchar>(i, j));
+			if (gradImg_x.at<uchar>(i, j) == 0)
+			{
+				angleImg.at<float>(i, j) = 90.0;
+				continue;
+			}
+			temp = float(gradImg_y.at<uchar>(i, j)) / gradImg_x.at<uchar>(i, j);
 			if (temp <= 0.5)
 			{
 				angleImg.at<float>(i, j) = (temp*(1.0f + temp*temp*(-1.0f / 3 + temp*temp*(1.0f / 5 - temp*temp / 7))))*57.295f;
@@ -93,12 +103,12 @@ int ustc_Threshold(Mat grayImg, Mat& binaryImg, int th)
 int ustc_CalcHist(Mat grayImg, int* hist, int hist_len)
 {
 	int i = 0, j = 0, row = grayImg.rows, col = grayImg.cols;
-	memset(hist, 0, hist_len);
+	memset(hist, 0, hist_len*sizeof(int));
 	for (i = 0;i < row;i++)
 	{
 		for (j = 0;j < col;j++)
 		{
-			hist[grayImg.at<uchar>(i, j)*256/hist_len]++;
+			hist[grayImg.at<uchar>(i, j) * 256 / hist_len]++;
 		}
 	}
 	return 1;
@@ -110,7 +120,7 @@ int ustc_SubImgMatch_gray(Mat grayImg, Mat subImg, int* x, int* y)
 	int mx = 0, my = 0;
 	uchar *pg(NULL), *ps(NULL);
 	long long temp = 0;
-	long long ans = 0xffffffffffffffff;
+	long long ans = 0xfffffffffffffff;
 	int row = grayImg.rows, col = grayImg.cols;
 	int rrr = subImg.rows, ccc = subImg.cols;
 	row -= rrr;
@@ -148,7 +158,7 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 	int mx = 0, my = 0;
 	Vec3b *pc(NULL),*ps(NULL);
 	long long temp = 0;
-	long long ans = 0xffffffffffffffff;
+	long long ans = 0x7fffffffffffffff;
 	int row = colorImg.rows, col = colorImg.cols;
 	int rrr = subImg.rows, ccc = subImg.cols;
 	row -= rrr;
@@ -165,11 +175,11 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 				ps = subImg.ptr<Vec3b>(k);
 				for (l = 0;l < ccc;l++)
 				{
-					m = pc[j + l][0] - pc[l][0];
+					m = pc[j + l][0] - ps[l][0];
 					temp += m > 0 ? m : -m;
-					m = pc[j + l][1] - pc[l][1];
+					m = pc[j + l][1] - ps[l][1];
 					temp += m > 0 ? m : -m;
-					m = pc[j + l][2] - pc[l][2];
+					m = pc[j + l][2] - ps[l][2];
 					temp += m > 0 ? m : -m;
 				}
 			}
@@ -187,57 +197,56 @@ int ustc_SubImgMatch_bgr(Mat colorImg, Mat subImg, int* x, int* y)
 
 int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 {
-	int i = 0, j = 0, k = 0, l = 0, m = 0;
-	int mx = 0, my = 0;
-	int row = grayImg.rows, col = grayImg.cols;
-	int rrr = subImg.rows, ccc = subImg.cols;
-	float gg=0, ss=0;
-	float temp, ans=128.0;
-	Mat gsquare(row, col, CV_32FC1, 1);
-	Mat ssquare(rrr, ccc, CV_32FC1, 1);
-	float *pp(NULL), *pg(NULL), *ps(NULL);
-	for (i = 0;i < row;i++)
+	int i, j, k, l, m, n;
+	subImg.convertTo(subImg, CV_32FC1, 1.0 / 255);
+	grayImg.convertTo(grayImg, CV_32FC1, 1.0 / 255);
+	int grayrow = grayImg.rows, graycol = grayImg.cols;
+	int subrow = subImg.rows, subcol = subImg.cols;
+	Mat graysq = grayImg.clone(), subsq = subImg.clone();
+	float *gs, *qs;
+	float temp, ans=0.0, gg, ss;
+	int mx = 255, my = 255;
+	for (i = 0;i < grayrow;i++)
 	{
-		pp = grayImg.ptr<float>(i);
-		pg = gsquare.ptr<float>(i);
-		for (j = 0;j < col;j++)
+		gs = graysq.ptr<float>(i);
+		for (j = 0;j < graycol;j++)
 		{
-			pg[j] = pp[i] * pp[i];
+			gs[j] = gs[j] * gs[j];
 		}
 	}
-	for (i = 0;i < rrr;i++)
+	for (i = 0;i < subrow;i++)
 	{
-		pp = subImg.ptr<float>(i);
-		ps = ssquare.ptr<float>(i);
-		for (j = 0;j < col;j++)
+		gs = subsq.ptr<float>(i);
+		for (j = 0;j < subcol;j++)
 		{
-			ps[j] = pp[i] * pp[i];
+			gs[j] = gs[j] * gs[j];
 		}
 	}
-	row -= rrr;
-	col -= ccc;
-	for (i = 0;i < row;i++)
+	grayrow -= subrow;
+	graycol -= subcol;
+	for (i = 0;i < grayrow;i++)
 	{
-		for (j = 0;j < col;j++)
+		for (j = 0;j < graycol;j++)
 		{
-			temp = 0.0;
-			ss = gg = 0;
-			for (k = 0;k < rrr;k++)
+			temp = gg = ss = 0.0;
+			for (k = 0;k < subrow;k++)
 			{
-				pg = grayImg.ptr<float>(i + k);
-				ps = subImg.ptr<float>(k);
-				for (l = 0;l < ccc;l++)
+				gs = graysq.ptr<float>(i + k);
+				qs = subsq.ptr<float>(k);
+				for (l = 0;l < subcol;l++)
 				{
-					temp += pg[j + l] * ps[l];
-					ss += ssquare.at<float>(i + k, j + l);
-					gg += gsquare.at<float>(k, l);
+					temp += grayImg.at<float>(i + k, j + l)*subImg.at<float>(k, l);
+					gg += gs[j+l];
+					ss += qs[l];
 				}
 			}
-			temp /= (mySqrt(ss)*mySqrt(gg));
-			if (temp < ans)
+			temp = temp*temp;
+			temp /= (ss*gg);
+			if (temp >= ans)
 			{
+				mx = i;
+				my = j;
 				ans = temp;
-				mx = i, my = j;
 			}
 		}
 	}
@@ -248,16 +257,17 @@ int ustc_SubImgMatch_corr(Mat grayImg, Mat subImg, int* x, int* y)
 
 int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 {
-	int i = 0, j = 0, k = 0, l = 0, m = 0;
+	int i = 0, j = 0, k = 0, l = 0;
 	int mx = 0, my = 0;
 	int row = grayImg.rows, col = grayImg.cols;
 	int rrr = subImg.rows, ccc = subImg.cols;
 	row -= rrr;
 	col -= ccc;
-	int temp, ans = 0x7fffffff;
 	float *pg(NULL), *ps(NULL);
+	float m, temp, ans=0;
 	Mat gangle, gmag, sangle, smag;
 	Mat ggradx, ggrady, sgradx, sgrady;
+	bool flag = true;
 	ustc_CalcGrad(grayImg, ggradx, ggrady);
 	ustc_CalcGrad(subImg, sgradx, sgrady);
 	ustc_CalcAngleMag(ggradx, ggrady, gangle, gmag);
@@ -266,7 +276,7 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 	{
 		for (j = 0;j < col;j++)
 		{
-			temp = 0;
+			temp = 0.0;
 			for (k = 0;k < rrr;k++)
 			{
 				pg = gangle.ptr<float>(i + k);
@@ -277,10 +287,12 @@ int ustc_SubImgMatch_angle(Mat grayImg, Mat subImg, int* x, int* y)
 					temp += m > 0 ? m : -m;
 				}
 			}
-			if (temp < ans)
+//			cout << temp << endl;
+			if (temp < ans || flag)
 			{
 				ans = temp;
 				mx = i, my = j;
+				flag = false;
 			}
 		}
 	}
@@ -297,8 +309,9 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 	int rrr = subImg.rows, ccc = subImg.cols;
 	row -= rrr;
 	col -= ccc;
-	float temp, ans = 128.0, m = 0.0;
-	float *pg(NULL), *ps(NULL);
+	long long temp, ans = 0, m = 0;
+	bool flag = true;
+	uchar *pg(NULL), *ps(NULL);
 	Mat gangle, gmag, sangle, smag;
 	Mat ggradx, ggrady, sgradx, sgrady;
 	ustc_CalcGrad(grayImg, ggradx, ggrady);
@@ -312,18 +325,19 @@ int ustc_SubImgMatch_mag(Mat grayImg, Mat subImg, int* x, int* y)
 			temp = 0.0;
 			for (k = 0;k < rrr;k++)
 			{
-				pg = gmag.ptr<float>(i + k);
-				ps = smag.ptr<float>(k);
+				pg = gmag.ptr<uchar>(i + k);
+				ps = smag.ptr<uchar>(k);
 				for (l = 0;l < ccc;l++)
 				{
 					m = pg[j + l] - ps[l];
 					temp += m > 0 ? m : -m;
 				}
 			}
-			if (temp < ans)
+			if (temp < ans || flag)
 			{
 				ans = temp;
 				mx = i, my = j;
+				flag = false;
 			}
 		}
 	}
@@ -339,17 +353,20 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 	int i = 0, j = 0, k = 0, l = 0, m = 0;
 	int row = grayImg.rows, col = grayImg.cols;
 	int rrr = subImg.rows, ccc = subImg.cols;
-	int temp, ans = 0x7fffffff;
+	int temp, ans = 0;
+	bool flag = true;
 	uchar *pg(NULL), *ps(NULL);
 	row -= rrr;
 	col -= ccc;
+	grayImg.convertTo(grayImg, CV_8UC1);
+	subImg.convertTo(subImg, CV_8UC1);
 	for (i = 0;i < row;i++)
 	{
 		for (j = 0;j < col;j++)
 		{
 			temp = 0;
-			memset(ghist, 0, 256);
-			memset(shist, 0, 256);
+			memset(ghist, 0, 256*sizeof(int));
+			memset(shist, 0, 256*sizeof(int));
 			for (k = 0;k < rrr;k++)
 			{
 				pg = grayImg.ptr<uchar>(i + k);
@@ -362,15 +379,19 @@ int ustc_SubImgMatch_hist(Mat grayImg, Mat subImg, int* x, int* y)
 			}
 			for (k = 0;k < 256;k++)
 			{
+//				cout << "  " << ghist[k];
 				m = ghist[k] - shist[k];
 				temp += m > 0 ? m : -m;
 			}
-			if (temp < ans)
+			if (temp < ans|| flag)
 			{
 				ans = temp;
 				mx = i, my = j;
+				flag = false;
 			}
 		}
 	}
+	*x = mx;
+	*y = my;
 	return 1;
 }
